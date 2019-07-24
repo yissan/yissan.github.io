@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="Qiangyu&#39;s Notes">
 <meta property="og:description" content="当需要从数据库查询的表有上万条记录的时候，一次性查询所有结果会变得很慢，特别是随着数据量的增加特别明显，这时需要使用分页查询。对于数据库分页查询，也有很多种方法和优化的点。   下面简单说一下我知道的一些方法。 准备工作为了对下面列举的一些优化进行测试，下面针对已有的一张表进行说明。  表名：order_history  描述：某个业务的订单历史表  主要字段：unsigned int id，ti">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-24T08:03:52.754Z">
+<meta property="og:updated_time" content="2019-07-24T08:09:44.331Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据量很大，分页查询很慢，怎么优化？">
 <meta name="twitter:description" content="当需要从数据库查询的表有上万条记录的时候，一次性查询所有结果会变得很慢，特别是随着数据量的增加特别明显，这时需要使用分页查询。对于数据库分页查询，也有很多种方法和优化的点。   下面简单说一下我知道的一些方法。 准备工作为了对下面列举的一些优化进行测试，下面针对已有的一张表进行说明。  表名：order_history  描述：某个业务的订单历史表  主要字段：unsigned int id，ti">
@@ -375,7 +375,21 @@
 <li>8401 ms </li>
 </ul>
 <h3 id="一般分页查询"><a href="#一般分页查询" class="headerlink" title="一般分页查询"></a>一般分页查询</h3><p>一般的分页查询使用简单的 limit 子句就可以实现。limit 子句声明如下：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">table</span> <span class="keyword">LIMIT</span> [<span class="keyword">offset</span>,] <span class="keyword">rows</span> | <span class="keyword">rows</span> <span class="keyword">OFFSET</span> <span class="keyword">offset</span></span><br><span class="line"></span><br><span class="line"><span class="string">``</span><span class="string">` </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">LIMIT 子句可以被用于指定 SELECT 语句返回的记录数。需注意以下几点：</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">- 第一个参数指定第一个返回记录行的偏移量，注意从 </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">0开始 </span></span><br><span class="line"><span class="string">- 第二个参数指定返回记录行的最大数目 </span></span><br><span class="line"><span class="string">- 如果只给定一个参数：它表示返回最大的记录行数目 </span></span><br><span class="line"><span class="string">- 第二个参数为 -1 表示检索从某一个偏移量到记录集的结束所有的记录行 </span></span><br><span class="line"><span class="string">- 初始记录行的偏移量是 0(而不是 1) </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">下面是一个应用实例：</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">`</span><span class="string">``</span><span class="keyword">sql</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> orders_history <span class="keyword">where</span> <span class="keyword">type</span>=<span class="number">8</span> <span class="keyword">limit</span> <span class="number">1000</span>,<span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">table</span> <span class="keyword">LIMIT</span> [<span class="keyword">offset</span>,] <span class="keyword">rows</span> | <span class="keyword">rows</span> <span class="keyword">OFFSET</span> <span class="keyword">offset</span></span><br></pre></td></tr></table></figure>
+
+<p>LIMIT 子句可以被用于指定 SELECT 语句返回的记录数。需注意以下几点：</p>
+<ul>
+<li>第一个参数指定第一个返回记录行的偏移量，注意从 </li>
+</ul>
+<p>0开始 </p>
+<ul>
+<li>第二个参数指定返回记录行的最大数目 </li>
+<li>如果只给定一个参数：它表示返回最大的记录行数目 </li>
+<li>第二个参数为 -1 表示检索从某一个偏移量到记录集的结束所有的记录行 </li>
+<li>初始记录行的偏移量是 0(而不是 1) </li>
+</ul>
+<p>下面是一个应用实例：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> orders_history <span class="keyword">where</span> <span class="keyword">type</span>=<span class="number">8</span> <span class="keyword">limit</span> <span class="number">1000</span>,<span class="number">10</span>;</span><br></pre></td></tr></table></figure>
 
 <p>该条语句将会从表 orders_history 中查询 </p>
 <p>offset:1000开始之后的10条数据，也就是第1001条到第1010条数据到第 </p>
